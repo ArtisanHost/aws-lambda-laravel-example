@@ -3,7 +3,7 @@
 var child_process = require('child_process');
 const parser = require("http-string-parser");
 var path = require("path");
-module.exports.handle = (event, context, callback) =>
+module.exports.handler = (event, context, callback) =>
 {
     context.callbackWaitsForEmptyEventLoop = false;
 
@@ -31,7 +31,7 @@ module.exports.handle = (event, context, callback) =>
 
     var scriptPath = path.resolve(__dirname + '/public/index.php')
 
-    var proc = child_process.spawn(('./php', ['-f', scriptPath, '-c', './php.ini'], {
+    var proc = child_process.spawnSync('./php-cgi', ['-f', scriptPath], {
         env: Object.assign({
             REDIRECT_STATUS: 200,
             REQUEST_METHOD: requestMethod,
@@ -43,12 +43,12 @@ module.exports.handle = (event, context, callback) =>
             REQUEST_URI: requestUri,
             QUERY_STRING: queryParams,
             AWS_LAMBDA: true,
-            CONTENT_LENGTH: Buffer.byteLength(requestBody, 'utf-8')
+            CONTENT_LENGTH: Buffer.byteLength(requestBody, 'utf-8'),
+            HTTPS: true
         }, headers, process.env),
         input: requestBody
     });
     console.log(proc.stderr.toString('utf-8'));
-
     var parsedResponse = parser.parseResponse(proc.stdout.toString('utf-8'));
 
     context.succeed({

@@ -25,6 +25,13 @@ $app = new Illuminate\Foundation\Application(
 | incoming requests to this application from both the web and CLI.
 |
 */
+$directoryNames = ['/tmp/laravel/framework/sessions', '/tmp/laravel/framework/cache', '/tmp/laravel/framework/views'];
+foreach ($directoryNames as $directoryName) {
+    if (!is_dir($directoryName)) {
+        mkdir($directoryName, 0755, true);
+    }
+}
+$app->useStoragePath( '/tmp/laravel' );
 
 $app->singleton(
     Illuminate\Contracts\Http\Kernel::class,
